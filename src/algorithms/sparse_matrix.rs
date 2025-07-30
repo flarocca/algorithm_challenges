@@ -27,6 +27,10 @@ pub struct SparseMatrix<T> {
 
 impl<T> SparseMatrix<T> {
     pub fn new(rows: usize, cols: usize) -> Self {
+        if rows == 0 || cols == 0 {
+            panic!("Rows and Cols must be greater than 0.");
+        }
+
         SparseMatrix {
             row_max_index: rows - 1,
             col_max_index: cols - 1,
@@ -66,7 +70,7 @@ impl<T> SparseMatrix<T> {
         (self.row_max_index + 1, self.col_max_index + 1)
     }
 
-    pub fn iter(self) -> SparseMatrixIterator<T> {
+    pub fn iter(&self) -> SparseMatrixIterator<T> {
         SparseMatrixIterator::from(self)
     }
 
@@ -114,13 +118,13 @@ impl<T> Index<(usize, usize)> for SparseMatrix<T> {
     }
 }
 
-pub struct SparseMatrixIterator<T> {
-    matrix: SparseMatrix<T>,
+pub struct SparseMatrixIterator<'a, T> {
+    matrix: &'a SparseMatrix<T>,
     actual: Item,
 }
 
-impl<T> From<SparseMatrix<T>> for SparseMatrixIterator<T> {
-    fn from(matrix: SparseMatrix<T>) -> Self {
+impl<'a, T> From<&'a SparseMatrix<T>> for SparseMatrixIterator<'a, T> {
+    fn from(matrix: &'a SparseMatrix<T>) -> Self {
         SparseMatrixIterator {
             matrix,
             actual: Default::default(),
@@ -128,7 +132,7 @@ impl<T> From<SparseMatrix<T>> for SparseMatrixIterator<T> {
     }
 }
 
-impl<T: Clone> Iterator for SparseMatrixIterator<T> {
+impl<T: Clone> Iterator for SparseMatrixIterator<'_, T> {
     type Item = (usize, usize, T);
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -380,7 +384,7 @@ mod tests {
         let _ = matrix.insert(1, 1, "b".to_owned());
         let _ = matrix.insert(2, 0, "c".to_owned());
 
-        let mut iterator = matrix.clone().iter();
+        let mut iterator = matrix.iter();
 
         assert!(
             matches!(iterator.next(), Some((row, col, item)) if row == 0 && col == 0 && item == "a")
