@@ -26,6 +26,11 @@ pub struct SparseMatrix<T> {
 }
 
 impl<T> SparseMatrix<T> {
+    // TODO: transpose()
+    // TODO: from_dense()
+    // TODO: add
+    // TODO: Matrix operations
+
     pub fn new(rows: usize, cols: usize) -> Self {
         if rows == 0 || cols == 0 {
             panic!("Rows and Cols must be greater than 0.");
@@ -72,6 +77,18 @@ impl<T> SparseMatrix<T> {
 
     pub fn iter(&self) -> SparseMatrixIterator<T> {
         SparseMatrixIterator::from(self)
+    }
+
+    pub fn to_dense(&self) -> Vec<Vec<Option<&T>>> {
+        let (rows, cols) = self.shape();
+
+        let mut dense_matrix = vec![vec![None; cols]; rows];
+
+        for (item, value) in &self.data {
+            dense_matrix[item.row][item.col] = Some(value);
+        }
+
+        dense_matrix
     }
 
     fn check_index_boundaries(&self, row: usize, col: usize) -> Result<(), Error> {
@@ -396,5 +413,26 @@ mod tests {
             matches!(iterator.next(), Some((row, col, item)) if row == 1 && col == 1 && item == "b")
         );
         assert!(iterator.next().is_none());
+    }
+
+    #[test]
+    fn test_matrix_to_dense() {
+        let mut matrix: SparseMatrix<String> = SparseMatrix::new(3, 3);
+
+        let _ = matrix.insert(0, 0, "a".to_owned());
+        let _ = matrix.insert(1, 1, "b".to_owned());
+        let _ = matrix.insert(2, 2, "c".to_owned());
+
+        let dense_matrix = matrix.to_dense();
+
+        assert_eq!(dense_matrix[0][0], Some(&"a".to_owned()));
+        assert_eq!(dense_matrix[1][1], Some(&"b".to_owned()));
+        assert_eq!(dense_matrix[2][2], Some(&"c".to_owned()));
+        assert_eq!(dense_matrix[0][1], None);
+        assert_eq!(dense_matrix[0][2], None);
+        assert_eq!(dense_matrix[1][0], None);
+        assert_eq!(dense_matrix[1][2], None);
+        assert_eq!(dense_matrix[2][0], None);
+        assert_eq!(dense_matrix[2][1], None);
     }
 }
