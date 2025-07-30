@@ -1,4 +1,4 @@
-mod algorithms;
+pub mod algorithms;
 
 fn main() {
     let mut bloom = algorithms::bloom_filter::BloomFilter::new(1000, 0.01);
