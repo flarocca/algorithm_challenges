@@ -5,6 +5,7 @@ This repopository is meant to serve as learning and practicing resource to impro
 ## Algorithms
 
 - [x] Bloom Filter
+- [x] Sparse Matrix
 - [ ] Consistent Hashing
 - [ ] Count-Min Sketch
 - [ ] Cuckoo Filter
