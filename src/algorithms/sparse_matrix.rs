@@ -26,8 +26,6 @@ pub struct SparseMatrix<T> {
 }
 
 impl<T> SparseMatrix<T> {
-    // TODO: transpose()
-    // TODO: from_dense()
     // TODO: add
     // TODO: Matrix operations
 
@@ -101,6 +99,22 @@ impl<T> SparseMatrix<T> {
         }
 
         Ok(())
+    }
+}
+
+impl<T: Clone> SparseMatrix<T> {
+    pub fn transpose(&self) -> Self {
+        let data = self
+            .data
+            .iter()
+            .map(|(item, value)| (Item::new(item.col, item.row), value.clone()))
+            .collect::<HashMap<Item, T>>();
+
+        Self {
+            row_max_index: self.col_max_index,
+            col_max_index: self.row_max_index,
+            data,
+        }
     }
 }
 
@@ -434,5 +448,21 @@ mod tests {
         assert_eq!(dense_matrix[1][2], None);
         assert_eq!(dense_matrix[2][0], None);
         assert_eq!(dense_matrix[2][1], None);
+    }
+
+    #[test]
+    fn test_matrix_transpose() {
+        let mut matrix: SparseMatrix<String> = SparseMatrix::new(3, 2);
+
+        let _ = matrix.insert(0, 1, "a".to_owned());
+        let _ = matrix.insert(1, 0, "b".to_owned());
+        let _ = matrix.insert(2, 1, "c".to_owned());
+
+        let transposed_matrix = matrix.transpose();
+
+        assert_eq!(transposed_matrix.shape(), (2, 3));
+        assert!(matches!(transposed_matrix.get(1, 0), Ok(Some(value)) if value == &"a".to_owned()));
+        assert!(matches!(transposed_matrix.get(0, 1), Ok(Some(value)) if value == &"b".to_owned()));
+        assert!(matches!(transposed_matrix.get(1, 2), Ok(Some(value)) if value == &"c".to_owned()));
     }
 }
