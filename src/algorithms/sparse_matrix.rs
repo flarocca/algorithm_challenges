@@ -73,7 +73,7 @@ impl<T> SparseMatrix<T> {
         (self.row_max_index + 1, self.col_max_index + 1)
     }
 
-    pub fn iter(&self) -> SparseMatrixIterator<T> {
+    pub fn iter(&'_ self) -> SparseMatrixIterator<'_, T> {
         SparseMatrixIterator::from(self)
     }
 
