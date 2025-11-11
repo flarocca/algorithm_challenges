@@ -6,6 +6,7 @@ This repopository is meant to serve as learning and practicing resource to impro
 
 - [x] Bloom Filter
 - [x] Sparse Matrix
+- [x] Merkle Tree
 - [ ] Consistent Hashing
 - [ ] Count-Min Sketch
 - [ ] Cuckoo Filter
