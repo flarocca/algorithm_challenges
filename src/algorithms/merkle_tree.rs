@@ -275,7 +275,7 @@ mod tests {
     }
 
     #[test]
-    fn single_leaf_root_valid_prrof() {
+    fn single_leaf_root_valid_proof() {
         // Arrange
         let a: Hash32 = ("A").into();
         let tree = MerkleTree::new(vec![a]);
