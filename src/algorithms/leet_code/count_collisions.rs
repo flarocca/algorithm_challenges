@@ -1,6 +1,21 @@
 pub struct Solution;
 
 impl Solution {
+    /// Counts the number of collisions between cars based on their directions.
+    ///
+    /// # Parameters
+    /// - `directions`: A string consisting of characters 'L', 'R', and 'S', where:
+    ///     - 'L' represents a car moving to the left,
+    ///     - 'R' represents a car moving to the right,
+    ///     - 'S' represents a stationary car.
+    ///
+    /// # Collision Rules
+    /// - A collision occurs when a moving car ('L' or 'R') encounters a stationary car ('S') or a car moving in the opposite direction.
+    /// - Cars moving left ('L') at the start and cars moving right ('R') at the end never collide.
+    /// - The function counts the number of cars that will collide (i.e., all non-stationary cars between the first non-left and last non-right car).
+    ///
+    /// # Returns
+    /// The total number of collisions that will occur.
     pub fn count_collisions(directions: String) -> i32 {
         let bytes = directions.as_bytes();
         let n = bytes.len();
