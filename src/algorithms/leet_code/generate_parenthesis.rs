@@ -27,6 +27,43 @@ impl Solution {
     ///     Input: n = 1
     ///     Output: ["()"]
     pub fn generate_parenthesis(n: i32) -> Vec<String> {
+        let n = n as usize;
+        let mut out = Vec::new();
+        let mut cur = String::with_capacity(2 * n);
+        Self::backtrack(n, 0, 0, &mut cur, &mut out);
+        out
+    }
+
+    fn backtrack(
+        n: usize,
+        open_used: usize,
+        close_used: usize,
+        cur: &mut String,
+        out: &mut Vec<String>,
+    ) {
+        if cur.len() == 2 * n {
+            out.push(cur.clone());
+            return;
+        }
+
+        // Add '(' if we still can
+        if open_used < n {
+            cur.push('(');
+            Self::backtrack(n, open_used + 1, close_used, cur, out);
+            cur.pop();
+        }
+
+        // Add ')' only if it won't make the string invalid
+        if close_used < open_used {
+            cur.push(')');
+            Self::backtrack(n, open_used, close_used + 1, cur, out);
+            cur.pop();
+        }
+    }
+}
+
+impl Solution {
+    pub fn generate_parenthesis_v2(n: i32) -> Vec<String> {
         let result = Self::generate_tree(n, n + 1, "(".to_owned());
         let paths = Self::extract_paths(Vec::new(), result);
         let valid_paths = Self::filter_paths(paths, n);
@@ -107,5 +144,6 @@ mod tests {
     #[case(4, &["(((())))","((()()))","((())())","((()))()","(()(()))","(()()())","(()())()","(())(())","(())()()","()((()))","()(()())","()(())()","()()(())","()()()()"])]
     fn test_generate_parenthesis(#[case] input: i32, #[case] expected: &[&str]) {
         assert_eq!(Solution::generate_parenthesis(input), expected);
+        assert_eq!(Solution::generate_parenthesis_v2(input), expected);
     }
 }
