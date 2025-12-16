@@ -23,14 +23,21 @@ impl Solution {
         let mut taken_slots = 0;
 
         loop {
-            // println!(
-            //     "Minutes: {:#?} - Taken Slots: {:#?} - Batteries: {:?}",
-            //     minutes, taken_slots, batteries
-            // );
-            for battery_capacity in &mut batteries {
-                if *battery_capacity > 0 {
+            println!(
+                "Minutes: {:#?} - Taken Slots: {:#?} - Batteries: {:?}",
+                minutes, taken_slots, batteries
+            );
+            let index_of_max = Self::index_of_max(&batteries);
+            let Some(index_to_consume) =
+                Self::get_slots_to_consume(n as usize, index_of_max, &batteries)
+            else {
+                break;
+            };
+
+            for i in index_to_consume {
+                if batteries[i] > 0 {
                     taken_slots += 1;
-                    *battery_capacity -= 1;
+                    batteries[i] -= 1;
                 }
 
                 if taken_slots == n {
@@ -44,15 +51,56 @@ impl Solution {
 
             minutes += 1;
             taken_slots = 0;
-            batteries.sort_by(|a, b| b.cmp(a));
         }
 
-        // println!(
-        //     "Minutes: {:#?} - Taken Slots: {:#?} - Batteries: {:?}",
-        //     minutes, taken_slots, batteries
-        // );
+        println!(
+            "Minutes: {:#?} - Taken Slots: {:#?} - Batteries: {:?}",
+            minutes, taken_slots, batteries
+        );
 
         minutes
+    }
+
+    fn index_of_max(batteries: &[i32]) -> usize {
+        let mut max_index = 0;
+        let mut max_capacity = 0;
+
+        for (i, capacity) in batteries.iter().enumerate() {
+            if *capacity > max_capacity {
+                max_capacity = *capacity;
+                max_index = i;
+            }
+        }
+
+        max_index
+    }
+
+    fn get_slots_to_consume(slots: usize, start: usize, batteries: &[i32]) -> Option<Vec<usize>> {
+        let mut i = start;
+        let mut slots_taken = 0;
+        let mut result = Vec::with_capacity(slots);
+
+        while slots_taken < slots {
+            if batteries[i] != 0 {
+                result.push(i);
+                slots_taken += 1;
+            }
+            i += 1;
+
+            if i > batteries.len() - 1 {
+                i = 0;
+            }
+
+            if i == start {
+                break;
+            }
+        }
+
+        if slots_taken == slots {
+            Some(result)
+        } else {
+            None
+        }
     }
 }
 
@@ -75,23 +123,28 @@ mod tests {
     #[case((3, vec![10, 10, 3]), 3)]
     #[case((2, vec![2, 2, 3]), 3)]
     #[case((3, vec![3, 3, 3, 3]), 4)]
-    #[case((2, vec![100, 1, 1, 1]), 3)] // OK
-    #[case((3, vec![100, 1, 1, 1, 1, 1]), 2)] // OK
-    #[case((3, vec![100, 2, 1, 1, 1, 1]), 3)] // OK
+    #[case((2, vec![100, 1, 1, 1]), 3)]
+    #[case((3, vec![100, 1, 1, 1, 1, 1]), 2)]
+    #[case((3, vec![100, 2, 1, 1, 1, 1]), 3)]
+    #[case((12, vec![11,89,16,32,70,67,35,35,31,24,41,29,6,53,78,83]), 43)]
     fn test_max_run_time(#[case] (n, batteries): (i32, Vec<i32>), #[case] expected: i64) {
         assert_eq!(Solution::max_run_time(n, batteries.to_vec()), expected);
     }
 
     #[test]
     fn test_debug() {
-        let n = 2;
-        let batteries = [3, 3, 3];
+        let expected = 43;
+        let n = 12;
+        let batteries = [
+            11, 89, 16, 32, 70, 67, 35, 35, 31, 24, 41, 29, 6, 53, 78, 83,
+        ];
         let solution = Solution::max_run_time(n, batteries.to_vec());
 
-        println!("Solution: {solution:#?}");
+        println!("Solution: {solution:#?} - Expected: {expected:#?}");
     }
 
     #[test]
+    #[ignore]
     fn test_performance() {
         let n = 904;
         let batteries = [
@@ -431,5 +484,30 @@ mod tests {
 
         println!("Result: {solution:?}");
         println!("Elapsed: {:?}", elapsed);
+    }
+
+    #[rstest]
+    #[case((2, 0, vec![3, 3, 3]), Some(vec![0, 1]))]
+    #[case((2, 1, vec![2, 2, 3]), Some(vec![1, 2]))]
+    #[case((2, 2, vec![2, 2, 3]), Some(vec![2, 0]))]
+    #[case((2, 2, vec![0, 2, 3]), Some(vec![2, 1]))]
+    #[case((3, 2, vec![2, 0, 0]), None)]
+    fn test_slots_to_consume(
+        #[case] (slots, start, batteries): (usize, usize, Vec<i32>),
+        #[case] expected: Option<Vec<usize>>,
+    ) {
+        assert_eq!(
+            Solution::get_slots_to_consume(slots, start, &batteries),
+            expected
+        );
+    }
+
+    #[rstest]
+    #[case(&[0, 1], 1)]
+    #[case(&[0, 1, 2, 3], 3)]
+    #[case(&[2, 2, 3], 2)]
+    #[case(&[0, 2, 1], 1)]
+    fn test_index_of_max(#[case] batteries: &[i32], #[case] expected: usize) {
+        assert_eq!(Solution::index_of_max(batteries), expected);
     }
 }
