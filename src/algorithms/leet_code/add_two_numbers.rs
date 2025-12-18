@@ -80,30 +80,30 @@ impl Solution {
     fn add_numbers(
         l1: Option<Box<ListNode>>,
         l2: Option<Box<ListNode>>,
-        rest: i32,
+        carry: i32,
     ) -> Option<Box<ListNode>> {
         match (l1, l2) {
             (None, None) => {
-                if rest > 0 {
-                    Some(Box::new(ListNode::new(rest)))
+                if carry > 0 {
+                    Some(Box::new(ListNode::new(carry)))
                 } else {
                     None
                 }
             }
-            (Some(n), None) => Self::sum(n.val, 0, rest, n.next, None),
-            (None, Some(n)) => Self::sum(0, n.val, rest, None, n.next),
-            (Some(n1), Some(n2)) => Self::sum(n1.val, n2.val, rest, n1.next, n2.next),
+            (Some(n), None) => Self::sum(n.val, 0, carry, n.next, None),
+            (None, Some(n)) => Self::sum(0, n.val, carry, None, n.next),
+            (Some(n1), Some(n2)) => Self::sum(n1.val, n2.val, carry, n1.next, n2.next),
         }
     }
 
     fn sum(
         value_1: i32,
         value_2: i32,
-        rest: i32,
+        carry: i32,
         next_1: Option<Box<ListNode>>,
         next_2: Option<Box<ListNode>>,
     ) -> Option<Box<ListNode>> {
-        let new_value = value_1 + value_2 + rest;
+        let new_value = value_1 + value_2 + carry;
 
         let (new_rest, new_value) = if new_value > 9 {
             (1, new_value - 10)
@@ -127,7 +127,7 @@ mod tests {
     #[case((vec![2,4,3], vec![5,6,4]), &[7,0,8])]
     #[case((vec![0], vec![0]), &[0])]
     #[case((vec![9,9,9,9,9,9,9], vec![9,9,9,9]), &[8,9,9,9,0,0,0,1])]
-    fn test_count_partitions(#[case] (l1, l2): (Vec<i32>, Vec<i32>), #[case] expected: &[i32]) {
+    fn test_add_two_numbers(#[case] (l1, l2): (Vec<i32>, Vec<i32>), #[case] expected: &[i32]) {
         assert_eq!(
             Solution::add_two_numbers(Some(Box::new(l1.into())), Some(Box::new(l2.into())))
                 .unwrap()
