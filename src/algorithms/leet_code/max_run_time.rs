@@ -16,91 +16,27 @@ impl Solution {
     ///
     /// Return the maximum number of minutes you can run all the n computers simultaneously.
     pub fn max_run_time(n: i32, batteries: Vec<i32>) -> i64 {
+        let mut total_minutes = 0;
         let mut batteries = batteries;
-        batteries.sort_by(|a, b| b.cmp(a));
+        batteries.sort();
 
-        let mut minutes = 0;
-        let mut taken_slots = 0;
-
+        let available_batteries = batteries.len() as i32;
         loop {
-            println!(
-                "Minutes: {:#?} - Taken Slots: {:#?} - Batteries: {:?}",
-                minutes, taken_slots, batteries
-            );
-            let index_of_max = Self::index_of_max(&batteries);
-            let Some(index_to_consume) =
-                Self::get_slots_to_consume(n as usize, index_of_max, &batteries)
-            else {
-                break;
-            };
-
-            for i in index_to_consume {
-                if batteries[i] > 0 {
-                    taken_slots += 1;
-                    batteries[i] -= 1;
-                }
-
-                if taken_slots == n {
-                    break;
-                }
-            }
-
-            if taken_slots < n {
-                break;
-            }
-
-            minutes += 1;
-            taken_slots = 0;
-        }
-
-        println!(
-            "Minutes: {:#?} - Taken Slots: {:#?} - Batteries: {:?}",
-            minutes, taken_slots, batteries
-        );
-
-        minutes
-    }
-
-    fn index_of_max(batteries: &[i32]) -> usize {
-        let mut max_index = 0;
-        let mut max_capacity = 0;
-
-        for (i, capacity) in batteries.iter().enumerate() {
-            if *capacity > max_capacity {
-                max_capacity = *capacity;
-                max_index = i;
-            }
-        }
-
-        max_index
-    }
-
-    fn get_slots_to_consume(slots: usize, start: usize, batteries: &[i32]) -> Option<Vec<usize>> {
-        let mut i = start;
-        let mut slots_taken = 0;
-        let mut result = Vec::with_capacity(slots);
-
-        while slots_taken < slots {
-            if batteries[i] != 0 {
-                result.push(i);
-                slots_taken += 1;
-            }
-            i += 1;
-
-            if i > batteries.len() - 1 {
-                i = 0;
-            }
-
-            if i == start {
+            if available_batteries < n {
                 break;
             }
         }
 
-        if slots_taken == slots {
-            Some(result)
-        } else {
-            None
-        }
+        total_minutes
+
+        // n = 3
+        // batteries = [6, 5, 4, 3, 2]
+        // [6, 5, 4] -> [5, 4, 3] = 1 >> [5, 4, 3, 3, 2]
+        // [5, 4, 3] -> [4, 3, 2] = 2 >> [4, 3, 2, 3, 2] -> [4, 3, 3, 2, 2]
+        // [4, 3, 3] -> [3, 2, 2] = 3 >> [3, 2, 2, 2, 2]
+        // [3, 2, 2] -> [2, 1, 1] = 4 >> [2, 1, 1, 2, 2] -> [2, 2, 2, 1, 1]
+        // [2, 2, 2] -> [1, 1, 1] = 5 >> [1, 1, 1, 1, 1]
+        // [1, 1, 1] -> [0, 0, 0] = 6 >> [0, 0, 0, 1, 1]
     }
 }
 
@@ -135,6 +71,7 @@ mod tests {
     fn test_debug() {
         let expected = 43;
         let n = 12;
+        // batteries = 16
         let batteries = [
             11, 89, 16, 32, 70, 67, 35, 35, 31, 24, 41, 29, 6, 53, 78, 83,
         ];
